@@ -6,14 +6,16 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
-    @State private var friends: [Friend] = [
-        Friend (name: "Madison", birthday: .now),
-        Friend (name: "Kelechi", birthday: .now),
-    ]
+    @Query private var friends: [Friend]
+    @Environment(\.modelContext) private var context
+    
         @State private var newName = ""
         @State private var newBirthday = Date.now
+    
+    
     
     
     
@@ -28,6 +30,26 @@ struct ContentView: View {
                 }//end of list (line 18)
                 .navigationTitle("Birthdays")
                 .safeAreaInset(edge: .bottom){
+                    VStack(alignment: .center, spacing: 20 ){
+                        Text("New Birthday")
+                            .font(.headline)
+                        
+                        DatePicker(selection: $newBirthday, in: Date.distantPast...Date.now, displayedComponents: .date) {
+                            TextField("Name", text: $newName)
+                                .textFieldStyle(.roundedBorder)
+                        }//end of Date Picker
+                        
+                        Button("Save") {
+                            let newFriend = Friend(name: newName, birthday: newBirthday)
+                            context.insert(newFriend)
+                            newName = ""
+                            newBirthday = .now
+                            
+                        }//end of button
+                        .bold()
+                    }//end of VStack
+                    .padding()
+                    .background(.bar)
                 }//safeAreaInset
             } // end of NStack
         } // end of some view
@@ -35,4 +57,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .modelContainer(for:Friend.self, inMemory:true)
 }
